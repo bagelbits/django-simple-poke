@@ -32,3 +32,9 @@ class PokeMethodTests(TestCase):
     time = timezone.now() - datetime.timedelta(hours=1)
     recent_question = Poke(poke_date=time)
     self.assertEqual(recent_question.was_poked_recently(), True)
+
+# Views to test:
+# index
+# add user
+# user pokes
+# new poke
