@@ -134,6 +134,33 @@ class PokeIndexViewTests(TestCase):
       ['<Poke: Poke from George to Bob>', '<Poke: Poke from Bob to George>']
     )
 
+class PokeNewUserTests(TestCase):
+  def test_new_user_view_with_no_users(self):
+    """
+    If no users exist, an appropriate message should be displayed.
+    """
+    response = self.client.get(reverse('pokes:new_user'))
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "No users currently exist.")
+    self.assertQuerysetEqual(response.context['user_list'], [])
+
+  def test_new_user_view_with_one_user(self):
+    user_1 = create_user(username="Bob")
+    response = self.client.get(reverse('pokes:new_user'))
+    self.assertQuerysetEqual(
+      response.context['user_list'],
+      ['<User: Bob>']
+    )
+
+  def test_new_user_view_with_two_users(self):
+    user_1 = create_user(username="Bob")
+    user_2 = create_user(username="George")
+    response = self.client.get(reverse('pokes:new_user'))
+    self.assertQuerysetEqual(
+      response.context['user_list'],
+      ['<User: George>', '<User: Bob>']
+    )
+
 
 # Views to test:
 # add user

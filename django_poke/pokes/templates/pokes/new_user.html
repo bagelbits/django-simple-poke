@@ -19,4 +19,6 @@
       <li><a href="{% url 'pokes:detail' user.id %}">{{ user.username }}</a>
     {% endfor %}
   </ul>
+{% else %}
+  <p>No users currently exist.</p>
 {% endif %}
