@@ -1,7 +1,7 @@
 {% if poke_list %}
     <ul>
     {% for poke in poke_list %}
-        <li><a href="{% url 'pokes:detail' poke.send_user.id%}">{{poke.send_user.username}}</li>
+        <li><a href="{% url 'pokes:detail' poke.send_user.id%}">{{ poke.send_user.username }}</a> poked <a href="{% url 'pokes:detail' poke.receive_user.id%}">{{ poke.receive_user.username }}</a> at {{ poke.poke_date }}</li>
     {% endfor %}
     </ul>
 {% else %}

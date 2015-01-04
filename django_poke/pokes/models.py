@@ -14,6 +14,9 @@ class Poke(models.Model):
   receive_user = models.ForeignKey(User, related_name="pokee")
   poke_date = models.DateTimeField('date poked')
 
+  def __unicode__(self):
+    return "Poke from {0} to {1}".format(self.send_user.username, self.receive_user.username)
+
   # Really just for fun since we can
   def was_poked_recently(self):
     now = timezone.now()

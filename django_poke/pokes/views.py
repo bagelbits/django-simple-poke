@@ -15,20 +15,9 @@ class IndexView(generic.ListView):
     """
     Return all pokes not including pokes set in the future. Shows all
     """
-    poke_list = Poke.objects.filter(
+    return Poke.objects.filter(
         poke_date__lte=timezone.now()
       ).order_by('-poke_date')
-
-    formated_poke_list = []
-    for poke in poke_list:
-      formated_poke = {
-        'send_id' : poke.send_user
-      }
-      formated_poke_list.append(formated_poke)
-    print poke_list
-    print formated_poke_list
-
-    return poke_list
 
 def new_user(request, user_id):
   pass
