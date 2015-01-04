@@ -7,42 +7,6 @@ from django.core.urlresolvers import reverse
 
 from pokes.models import Poke, User
 
-#########################################################
-#                         Models                        #
-#########################################################
-
-class PokeMethodTests(TestCase):
-  def test_was_poked_recently_with_future_question(self):
-    """
-    was_poked_recently() should return False for questions whose
-    poke_date is in the future
-    """
-    time = timezone.now() + datetime.timedelta(days=30)
-    future_question = Poke(poke_date=time)
-    self.assertEqual(future_question.was_poked_recently(), False)
-
-  def test_was_poked_recently_with_old_question(self):
-    """
-    was_poked_recently() should return False for questions whose
-    poke_date is older than 1 day
-    """
-    time = timezone.now() - datetime.timedelta(days=30)
-    old_question = Poke(poke_date=time)
-    self.assertEqual(old_question.was_poked_recently(), False)
-
-  def test_was_poked_recently_with_recent_question(self):
-    """
-    was_poked_recently() should return True for questions whose
-    poke_date is within the last day
-    """
-    time = timezone.now() - datetime.timedelta(hours=1)
-    recent_question = Poke(poke_date=time)
-    self.assertEqual(recent_question.was_poked_recently(), True)
-
-
-#########################################################
-#                          Views                        #
-#########################################################
 def create_user(username):
   """
   Creates a user with the given `username`.
@@ -61,6 +25,49 @@ def create_poke(sender, receiver, days):
                              receive_user=receiver,
                              poke_date=time)
 
+#########################################################
+#                         Models                        #
+#########################################################
+
+class PokeMethodTests(TestCase):
+  def test_was_poked_recently_with_future_poke(self):
+    """
+    was_poked_recently() should return False for pokes whose
+    poke_date is in the future
+    """
+    time = timezone.now() + datetime.timedelta(days=30)
+    future_poke = Poke(poke_date=time)
+    self.assertEqual(future_poke.was_poked_recently(), False)
+
+  def test_was_poked_recently_with_old_poke(self):
+    """
+    was_poked_recently() should return False for pokes whose
+    poke_date is older than 1 day
+    """
+    time = timezone.now() - datetime.timedelta(days=30)
+    old_poke = Poke(poke_date=time)
+    self.assertEqual(old_poke.was_poked_recently(), False)
+
+  def test_was_poked_recently_with_recent_poke(self):
+    """
+    was_poked_recently() should return True for pokes whose
+    poke_date is within the last day
+    """
+    time = timezone.now() - datetime.timedelta(hours=1)
+    recent_poke = Poke(poke_date=time)
+    self.assertEqual(recent_poke.was_poked_recently(), True)
+
+  def test_User_prints_correctly(self):
+    """
+
+    """
+    new_user = User(username='Test')
+    self.assertEqual(str(new_user), 'Test')
+
+
+#########################################################
+#                          Views                        #
+#########################################################
 
 class PokeIndexViewTests(TestCase):
   def test_index_view_with_no_pokes(self):
