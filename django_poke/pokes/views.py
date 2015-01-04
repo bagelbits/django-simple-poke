@@ -1,8 +1,9 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, get_list_or_404
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
+from django.db.models import Q
 
 from pokes.models import Poke, User
 
@@ -43,12 +44,12 @@ def add_user(request):
       'user_list' : User.objects.order_by('-username'),
     })
 
-class DetailView(generic.ListView):
-  model = User
-  template_name = 'pokes/detail.html'
+# Convert to detail or list view?
+def detail(request, user_id):
+  user = get_object_or_404(User, pk=user_id)
+  poke_list = Poke.objects.filter(Q(send_user__exact=user) | Q(receive_user__exact=user))
+  return render(request, 'pokes/detail.html', {'user' : user, 'poke_list' : poke_list})
 
-  def get_queryset(self):
-    pass
 
 def create_poke(request, user_id):
   pass
