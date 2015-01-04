@@ -31,13 +31,22 @@ class NewUserView(generic.ListView):
     return User.objects.order_by('-username')
 
 def add_user(request):
-  username = request.POST['username']
-  print request.POST
+  username = request.POST['username'].strip()
   try:
-    user = User.objects.get(username=username)
+    if not username:
+      raise KeyError
+    user = User.objects.filter(username__iexact=username)
+    if not user:
+      raise User.DoesNotExist
   except User.DoesNotExist:
     User.objects.create(username=username)
     return HttpResponseRedirect(reverse('pokes:index'))
+  except KeyError:
+    # Redisplay new user form.
+    return render(request, 'pokes/new_user.html', {
+      'error_message' : "Username must be provided.",
+      'user_list' : User.objects.order_by('-username'),
+    })
   else:
     # Redisplay new user form.
     return render(request, 'pokes/new_user.html', {

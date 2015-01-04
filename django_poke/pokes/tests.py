@@ -145,6 +145,9 @@ class PokeNewUserTests(TestCase):
     self.assertQuerysetEqual(response.context['user_list'], [])
 
   def test_new_user_view_with_one_user(self):
+    """
+    Existing user should be displayed on new user page
+    """
     user_1 = create_user(username="Bob")
     response = self.client.get(reverse('pokes:new_user'))
     self.assertQuerysetEqual(
@@ -153,6 +156,9 @@ class PokeNewUserTests(TestCase):
     )
 
   def test_new_user_view_with_two_users(self):
+    """
+    Multiple existing user should be displayed on new user page
+    """
     user_1 = create_user(username="Bob")
     user_2 = create_user(username="George")
     response = self.client.get(reverse('pokes:new_user'))
@@ -161,8 +167,45 @@ class PokeNewUserTests(TestCase):
       ['<User: George>', '<User: Bob>']
     )
 
+class PokeAddUserTests(TestCase):
+  def test_add_user_view_to_add_user(self):
+    """
+    Should be able to add users
+    """
+    response = self.client.post(reverse('pokes:add_user'), {'username': 'Bob'})
+    self.assertEqual(response.status_code, 302)
+    response = self.client.get(reverse('pokes:new_user'))
+    self.assertEqual(response.status_code, 200)
+    self.assertQuerysetEqual(
+      response.context['user_list'],
+      ['<User: Bob>']
+    )
+
+  def test_add_user_view_to_existing_user(self):
+    """
+    Cannot add existing user.
+    """
+    response = self.client.post(reverse('pokes:add_user'), {'username': 'Bob'})
+    self.assertEqual(response.status_code, 302)
+    response = self.client.post(reverse('pokes:add_user'), {'username': 'Bob'})
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "User already exists.")
+
+  def test_add_user_view_to_add_case_insentive_user(self):
+    """
+    User names should currently be case insensitive.
+    """
+    response = self.client.post(reverse('pokes:add_user'), {'username': 'Bob'})
+    self.assertEqual(response.status_code, 302)
+    response = self.client.post(reverse('pokes:add_user'), {'username': 'bob'})
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "User already exists.")
+
+  def test_add_user_view_to_no_user(self):
+    response = self.client.post(reverse('pokes:add_user'), {'username': ''})
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "Username must be provided.")
 
 # Views to test:
-# add user
 # user pokes
 # new poke
