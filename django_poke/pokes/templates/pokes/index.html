@@ -1,9 +1,10 @@
 {% if poke_list %}
+  <a href="{% url 'pokes:new_user'%}">Add user?</a>
     <ul>
     {% for poke in poke_list %}
         <li><a href="{% url 'pokes:detail' poke.send_user.id%}">{{ poke.send_user.username }}</a> poked <a href="{% url 'pokes:detail' poke.receive_user.id%}">{{ poke.receive_user.username }}</a> at {{ poke.poke_date }}</li>
     {% endfor %}
     </ul>
 {% else %}
-    <p>No pokes are available.</p>
+    <p>No pokes are available. <a href="{% url 'pokes:new_user'%}">Add user?</a></p>
 {% endif %}

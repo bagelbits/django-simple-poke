@@ -19,7 +19,7 @@ class IndexView(generic.ListView):
         poke_date__lte=timezone.now()
       ).order_by('-poke_date')
 
-def new_user(request, user_id):
+def new_user(request):
   pass
 
 class DetailView(generic.ListView):
