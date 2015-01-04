@@ -201,7 +201,7 @@ class PokeAddUserViewTests(TestCase):
     self.assertEqual(response.status_code, 200)
     self.assertContains(response, "User already exists.")
 
-  def test_add_user_view_to_no_user(self):
+  def test_add_user_view_no_user(self):
     """
     If not username is supplied, nothing should be added.
     """
@@ -248,6 +248,43 @@ class PokeUserDetailViewTests(TestCase):
       ['<Poke: Poke from Bob to George>', '<Poke: Poke from Bob to George>']
     )
 
+class PokeNewPokeViewTests(TestCase):
+  def test_new_poke_view_create_poke(self):
+    """
+    Should be able to create a poke
+    """
+    user_1 = create_user(username="Bob")
+    user_2 = create_user(username="George")
+
+    response = self.client.post(reverse('pokes:create_poke', args=(user_1.id,))
+                              , {'receiver': user_2.id})
+    self.assertEqual(response.status_code, 302)
+    response = self.client.get(reverse('pokes:index'))
+    self.assertEqual(response.status_code, 200)
+    self.assertQuerysetEqual(response.context['poke_list'], ['<Poke: Poke from Bob to George>'])
+
+  def test_new_poke_view_create_poke_no_user(self):
+    """
+    Should not create a poke if no reciever is given
+    """
+    user_1 = create_user(username="Bob")
+    user_2 = create_user(username="George")
+
+    response = self.client.post(reverse('pokes:create_poke', args=(user_1.id,))
+                              , {'receiver': ''})
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "User not selected.")
+
+  def test_new_poke_view_create_poke_nonexistent_user(self):
+    """
+    Should not create a poke if user doesn't exist
+    """
+    user_1 = create_user(username="Bob")
+
+    response = self.client.post(reverse('pokes:create_poke', args=(user_1.id,))
+                              , {'receiver': 20})
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "Selected user does not exist.")
 
 # Views to test:
 # new poke
