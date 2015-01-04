@@ -32,6 +32,7 @@ class NewUserView(generic.ListView):
 
 def add_user(request):
   username = request.POST['username']
+  print request.POST
   try:
     user = User.objects.get(username=username)
   except User.DoesNotExist:
@@ -47,9 +48,44 @@ def add_user(request):
 # Convert to detail or list view?
 def detail(request, user_id):
   user = get_object_or_404(User, pk=user_id)
-  poke_list = Poke.objects.filter(Q(send_user__exact=user) | Q(receive_user__exact=user))
-  return render(request, 'pokes/detail.html', {'user' : user, 'poke_list' : poke_list})
-
+  poke_list = Poke.objects.filter(
+    Q(send_user__exact=user) | Q(receive_user__exact=user))
+  user_list = User.objects.exclude(username__exact=user.username).order_by('-username')
+  return render(request, 'pokes/detail.html', {
+    'user' : user,
+    'poke_list' : poke_list,
+    'user_list' : user_list})
 
 def create_poke(request, user_id):
-  pass
+  sender_id = user_id
+  receiver_id = request.POST['receiver']
+
+  try:
+    send_user = User.objects.get(id=sender_id)
+    receive_user = User.objects.get(id=receiver_id)
+  except ValueError:
+    user = get_object_or_404(User, pk=sender_id)
+    poke_list = Poke.objects.filter(
+      Q(send_user__exact=user) | Q(receive_user__exact=user))
+    user_list = User.objects.exclude(username__exact=user.username).order_by('-username')
+    return render(request, 'pokes/detail.html', {
+      'error_message' : "User not selected.",
+      'user' : user,
+      'poke_list' : poke_list,
+      'user_list' : user_list})
+  except User.DoesNotExist:
+    user = get_object_or_404(User, pk=sender_id)
+    poke_list = Poke.objects.filter(
+      Q(send_user__exact=user) | Q(receive_user__exact=user))
+    user_list = User.objects.exclude(username__exact=user.username).order_by('-username')
+    return render(request, 'pokes/detail.html', {
+      'error_message' : "Selected user does not exist.",
+      'user' : user,
+      'poke_list' : poke_list,
+      'user_list' : user_list})
+  else:
+    time = timezone.now()
+    Poke.objects.create(send_user=send_user,
+                        receive_user=receive_user,
+                        poke_date=time)
+    return HttpResponseRedirect(reverse('pokes:index'))

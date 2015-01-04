@@ -1,5 +1,18 @@
 <h1> {{ user.username }} </h1>
 
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'pokes:create_poke' user.id %}" method="post">
+  {% csrf_token %}
+  <label for="receiver">Who would you like to poke? </label><br />
+  <select name="receiver" id="receiver">
+    <option value="">--</option>
+    {% for receiver in user_list %}
+      <option value="{{ receiver.id }}">{{ receiver.username }}</option>  
+    {% endfor %}
+  </select> 
+  <input type="submit" value="Poke!" />
+</form>
 
 {% if poke_list %}
   <ul>
