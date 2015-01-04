@@ -1,3 +1,7 @@
+{% load staticfiles %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'pokes/style.css' %}" />
+
 {% if poke_list %}
   <a href="{% url 'pokes:new_user'%}">Add user?</a>
     <ul>
