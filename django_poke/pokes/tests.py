@@ -13,7 +13,7 @@ def create_user(username):
   """
   return User.objects.create(username=username)
 
-def create_poke(sender, receiver, days):
+def create_poke(sender, receiver, days=0):
   """
   Creates a poke between two given users, `sender` and `receiver` with a
   given timestamp offset by a number of `days` to now (negative for
@@ -134,7 +134,7 @@ class PokeIndexViewTests(TestCase):
       ['<Poke: Poke from George to Bob>', '<Poke: Poke from Bob to George>']
     )
 
-class PokeNewUserTests(TestCase):
+class PokeNewUserViewTests(TestCase):
   def test_new_user_view_with_no_users(self):
     """
     If no users exist, an appropriate message should be displayed.
@@ -167,7 +167,7 @@ class PokeNewUserTests(TestCase):
       ['<User: George>', '<User: Bob>']
     )
 
-class PokeAddUserTests(TestCase):
+class PokeAddUserViewTests(TestCase):
   def test_add_user_view_to_add_user(self):
     """
     Should be able to add users
@@ -202,10 +202,52 @@ class PokeAddUserTests(TestCase):
     self.assertContains(response, "User already exists.")
 
   def test_add_user_view_to_no_user(self):
+    """
+    If not username is supplied, nothing should be added.
+    """
     response = self.client.post(reverse('pokes:add_user'), {'username': ''})
     self.assertEqual(response.status_code, 200)
     self.assertContains(response, "Username must be provided.")
 
+class PokeUserDetailViewTests(TestCase):
+  def test_user_detail_view_no_pokes(self):
+    """
+    If no pokes exist for the user, an appropriate message should be displayed.
+    """
+    user_1 = create_user(username="Bob")
+    response = self.client.post(reverse('pokes:detail',
+                                        args=(user_1.id,)))
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "No pokes for user.")
+    self.assertQuerysetEqual(response.context['poke_list'], [])
+
+  def test_user_detail_view_with_poke(self):
+    """
+    If poke exists, list should show.
+    """
+    user_1 = create_user(username="Bob")
+    user_2 = create_user(username="George")
+    create_poke(user_1, user_2)
+    response = self.client.post(reverse('pokes:detail',
+                                        args=(user_1.id,)))
+    self.assertQuerysetEqual(response.context['poke_list'],
+      ['<Poke: Poke from Bob to George>']
+    )
+
+  def test_user_detail_view_with_multiple_pokes(self):
+    """
+    If multiple pokes exists, list should show.
+    """
+    user_1 = create_user(username="Bob")
+    user_2 = create_user(username="George")
+    create_poke(user_1, user_2)
+    create_poke(user_1, user_2, days=-1)
+    response = self.client.post(reverse('pokes:detail',
+                                        args=(user_1.id,)))
+    self.assertQuerysetEqual(response.context['poke_list'],
+      ['<Poke: Poke from Bob to George>', '<Poke: Poke from Bob to George>']
+    )
+
+
 # Views to test:
-# user pokes
 # new poke

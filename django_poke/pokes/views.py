@@ -58,7 +58,7 @@ def add_user(request):
 def detail(request, user_id):
   user = get_object_or_404(User, pk=user_id)
   poke_list = Poke.objects.filter(
-    Q(send_user__exact=user) | Q(receive_user__exact=user))
+    Q(send_user__exact=user) | Q(receive_user__exact=user)).order_by('-poke_date')
   user_list = User.objects.exclude(username__exact=user.username).order_by('-username')
   return render(request, 'pokes/detail.html', {
     'user' : user,
