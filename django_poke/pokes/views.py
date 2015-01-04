@@ -27,11 +27,21 @@ class NewUserView(generic.ListView):
     """
     Return all users.
     """
-
     return User.objects.order_by('-username')
 
 def add_user(request):
-  return HttpResponseRedirect(reverse('pokes:index'))
+  username = request.POST['username']
+  try:
+    user = User.objects.get(username=username)
+  except User.DoesNotExist:
+    User.objects.create(username=username)
+    return HttpResponseRedirect(reverse('pokes:index'))
+  else:
+    # Redisplay new user form.
+    return render(request, 'pokes/new_user.html', {
+      'error_message' : "User already exists.",
+      'user_list' : User.objects.order_by('-username'),
+    })
 
 class DetailView(generic.ListView):
   model = User
