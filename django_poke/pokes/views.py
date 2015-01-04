@@ -19,8 +19,19 @@ class IndexView(generic.ListView):
         poke_date__lte=timezone.now()
       ).order_by('-poke_date')
 
-def new_user(request):
-  pass
+class NewUserView(generic.ListView):
+  template_name = 'pokes/new_user.html'
+  context_object_name = 'user_list'
+
+  def get_queryset(self):
+    """
+    Return all users.
+    """
+
+    return User.objects.order_by('-username')
+
+def add_user(request):
+  return HttpResponseRedirect(reverse('pokes:index'))
 
 class DetailView(generic.ListView):
   model = User

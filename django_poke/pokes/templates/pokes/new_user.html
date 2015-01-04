@@ -1,0 +1,18 @@
+<h1> Add User </h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'pokes:add_user' %}" method="post">
+  {% csrf_token %}
+  <label for="username">Username: </label>
+  <input type="text" name="username" id="username" /><br />
+  <input type="submit" value="Add user!">
+</form>
+
+{% if user_list %}
+  <ul>
+    {% for user in user_list %}
+      <li><a href="{% url 'pokes:detail' user.id %}">{{ user.username }}</a>
+    {% endfor %}
+  </ul>
+{% endif %}
