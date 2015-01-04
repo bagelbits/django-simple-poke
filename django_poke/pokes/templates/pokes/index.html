@@ -1,0 +1,9 @@
+{% if poke_list %}
+    <ul>
+    {% for poke in poke_list %}
+        <li><a href="{% url 'pokes:detail' poke.send_user.id%}">{{poke.send_user.username}}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No pokes are available.</p>
+{% endif %}
